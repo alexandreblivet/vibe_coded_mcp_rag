@@ -1,5 +1,5 @@
 const VOYAGE_API_URL = "https://api.voyageai.com/v1/embeddings";
-const VOYAGE_MODEL = "voyage-3-lite";
+const VOYAGE_MODEL = "voyage-4-lite";
 
 function getApiKey(): string {
   const key = process.env.VOYAGE_API_KEY;
@@ -72,6 +72,7 @@ export async function embedTexts(texts: string[]): Promise<number[][]> {
     body: JSON.stringify({
       input: texts,
       model: VOYAGE_MODEL,
+      output_dimension: 512,
     }),
   });
 
