@@ -11,6 +11,19 @@ interface SearchResult {
   content: string;
 }
 
+function SearchingIndicator() {
+  return (
+    <div className="flex flex-col items-center py-12 gap-3 animate-fade-in">
+      <div className="flex gap-1.5">
+        <span className="w-2 h-2 bg-[#6c5ce7] rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+        <span className="w-2 h-2 bg-[#6c5ce7] rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+        <span className="w-2 h-2 bg-[#6c5ce7] rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+      </div>
+      <span className="text-sm text-gray-400">Searching your knowledge base...</span>
+    </div>
+  );
+}
+
 export default function SearchTab({
   accessToken,
 }: {
@@ -59,6 +72,12 @@ export default function SearchTab({
     return "text-orange-400";
   }
 
+  function similarityBarColor(sim: number) {
+    if (sim >= 0.7) return "bg-green-400";
+    if (sim >= 0.5) return "bg-yellow-400";
+    return "bg-orange-400";
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -79,14 +98,17 @@ export default function SearchTab({
         <button
           type="submit"
           disabled={loading || !query.trim()}
-          className="px-6 py-2.5 bg-[#6c5ce7] hover:bg-[#5a4bd6] text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+          className="px-6 py-2.5 bg-[#6c5ce7] hover:bg-[#5a4bd6] text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap flex items-center gap-2"
         >
+          {loading && <span className="spinner spinner-sm" />}
           {loading ? "Searching..." : "Search"}
         </button>
       </form>
 
+      {loading && <SearchingIndicator />}
+
       {searched && !loading && results.length === 0 && (
-        <div className="bg-[#1a1a2e] rounded-xl p-8 text-center border border-gray-800">
+        <div className="bg-[#1a1a2e] rounded-xl p-8 text-center border border-gray-800 animate-fade-in">
           <p className="text-gray-400">No matching results found.</p>
           <p className="text-sm text-gray-500 mt-1">
             Try a different query or upload more documents.
@@ -94,15 +116,15 @@ export default function SearchTab({
         </div>
       )}
 
-      {results.length > 0 && (
+      {!loading && results.length > 0 && (
         <div className="space-y-4">
           <p className="text-sm text-gray-400">
             {results.length} result{results.length !== 1 ? "s" : ""} found
           </p>
-          {results.map((r) => (
+          {results.map((r, i) => (
             <div
               key={`${r.document_id}-${r.chunk_index}`}
-              className="bg-[#1a1a2e] rounded-xl p-5 border border-gray-800"
+              className={`bg-[#1a1a2e] rounded-xl p-5 border border-gray-800 animate-slide-up stagger-${Math.min(i + 1, 8)}`}
             >
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-3">
@@ -116,11 +138,19 @@ export default function SearchTab({
                     chunk {r.chunk_index}
                   </span>
                 </div>
-                <span
-                  className={`text-sm font-mono font-medium ${similarityColor(r.similarity)}`}
-                >
-                  {(r.similarity * 100).toFixed(1)}%
-                </span>
+                <div className="flex items-center gap-2">
+                  <div className="w-16 h-1.5 bg-gray-700 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full ${similarityBarColor(r.similarity)} transition-all duration-500`}
+                      style={{ width: `${r.similarity * 100}%` }}
+                    />
+                  </div>
+                  <span
+                    className={`text-sm font-mono font-medium ${similarityColor(r.similarity)}`}
+                  >
+                    {(r.similarity * 100).toFixed(1)}%
+                  </span>
+                </div>
               </div>
               <p className="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap">
                 {r.content}

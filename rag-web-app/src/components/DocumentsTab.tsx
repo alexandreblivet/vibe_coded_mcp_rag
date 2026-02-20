@@ -9,6 +9,27 @@ interface Document {
   created_at: string;
 }
 
+function LoadingSkeleton() {
+  return (
+    <div className="space-y-3">
+      {[1, 2, 3].map((i) => (
+        <div
+          key={i}
+          className="bg-[#1a1a2e] rounded-xl p-4 border border-gray-800 animate-shimmer"
+        >
+          <div className="flex items-center justify-between">
+            <div className="space-y-2 flex-1">
+              <div className="h-4 w-48 bg-gray-700/50 rounded" />
+              <div className="h-3 w-32 bg-gray-700/30 rounded" />
+            </div>
+            <div className="h-8 w-16 bg-gray-700/30 rounded-lg" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function DocumentsTab({
   accessToken,
 }: {
@@ -54,11 +75,7 @@ export default function DocumentsTab({
   }
 
   if (loading) {
-    return (
-      <div className="text-gray-400 text-center py-12">
-        Loading documents...
-      </div>
-    );
+    return <LoadingSkeleton />;
   }
 
   return (
@@ -83,7 +100,7 @@ export default function DocumentsTab({
       </div>
 
       {documents.length === 0 ? (
-        <div className="bg-[#1a1a2e] rounded-xl p-12 text-center border border-gray-800">
+        <div className="bg-[#1a1a2e] rounded-xl p-12 text-center border border-gray-800 animate-fade-in">
           <p className="text-gray-400">No documents yet.</p>
           <p className="text-sm text-gray-500 mt-1">
             Upload a document from the Upload tab to get started.
@@ -91,10 +108,10 @@ export default function DocumentsTab({
         </div>
       ) : (
         <div className="space-y-3">
-          {documents.map((doc) => (
+          {documents.map((doc, i) => (
             <div
               key={doc.id}
-              className="bg-[#1a1a2e] rounded-xl p-4 border border-gray-800 flex items-center justify-between"
+              className={`bg-[#1a1a2e] rounded-xl p-4 border border-gray-800 flex items-center justify-between hover:border-gray-600 hover:bg-[#1e1e36] transition-all duration-200 animate-slide-up stagger-${Math.min(i + 1, 8)}`}
             >
               <div className="min-w-0 flex-1">
                 <h3 className="text-white font-medium truncate">
@@ -119,7 +136,11 @@ export default function DocumentsTab({
                 disabled={deleting === doc.id}
                 className="ml-4 px-3 py-1.5 text-sm text-red-400 hover:bg-red-400/10 rounded-lg transition-colors disabled:opacity-50"
               >
-                {deleting === doc.id ? "..." : "Delete"}
+                {deleting === doc.id ? (
+                  <span className="spinner spinner-sm" style={{ borderTopColor: "#f87171" }} />
+                ) : (
+                  "Delete"
+                )}
               </button>
             </div>
           ))}

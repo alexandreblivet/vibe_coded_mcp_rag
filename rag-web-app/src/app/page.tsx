@@ -8,8 +8,13 @@ import DocumentsTab from "@/components/DocumentsTab";
 import SearchTab from "@/components/SearchTab";
 import McpConfigTab from "@/components/McpConfigTab";
 
-const TABS = ["Upload", "Documents", "Search", "MCP Config"] as const;
-type Tab = (typeof TABS)[number];
+const TABS = [
+  { name: "Upload" as const, icon: "\u2B06" },
+  { name: "Documents" as const, icon: "\u2630" },
+  { name: "Search" as const, icon: "\u2315" },
+  { name: "MCP Config" as const, icon: "\u2699" },
+];
+type Tab = (typeof TABS)[number]["name"];
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<Tab>("Upload");
@@ -51,7 +56,10 @@ export default function Home() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0a0a1a] flex items-center justify-center">
-        <div className="text-gray-400">Loading...</div>
+        <div className="flex flex-col items-center gap-3 animate-fade-in">
+          <div className="spinner spinner-purple" style={{ width: 28, height: 28, borderWidth: 2.5 }} />
+          <span className="text-gray-400 text-sm">Loading...</span>
+        </div>
       </div>
     );
   }
@@ -84,16 +92,17 @@ export default function Home() {
           <nav className="flex gap-1">
             {TABS.map((tab) => (
               <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`px-4 py-3 text-sm font-medium transition-colors relative ${
-                  activeTab === tab
+                key={tab.name}
+                onClick={() => setActiveTab(tab.name)}
+                className={`px-4 py-3 text-sm font-medium transition-colors relative flex items-center gap-2 ${
+                  activeTab === tab.name
                     ? "text-[#6c5ce7]"
                     : "text-gray-400 hover:text-white"
                 }`}
               >
-                {tab}
-                {activeTab === tab && (
+                <span className="text-xs">{tab.icon}</span>
+                {tab.name}
+                {activeTab === tab.name && (
                   <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#6c5ce7]" />
                 )}
               </button>
@@ -104,16 +113,18 @@ export default function Home() {
 
       {/* Tab content */}
       <main className="max-w-4xl mx-auto px-4 py-8">
-        {activeTab === "Upload" && (
-          <UploadTab accessToken={user.accessToken} />
-        )}
-        {activeTab === "Documents" && (
-          <DocumentsTab accessToken={user.accessToken} />
-        )}
-        {activeTab === "Search" && (
-          <SearchTab accessToken={user.accessToken} />
-        )}
-        {activeTab === "MCP Config" && <McpConfigTab userId={user.id} />}
+        <div key={activeTab} className="animate-fade-in">
+          {activeTab === "Upload" && (
+            <UploadTab accessToken={user.accessToken} />
+          )}
+          {activeTab === "Documents" && (
+            <DocumentsTab accessToken={user.accessToken} />
+          )}
+          {activeTab === "Search" && (
+            <SearchTab accessToken={user.accessToken} />
+          )}
+          {activeTab === "MCP Config" && <McpConfigTab userId={user.id} />}
+        </div>
       </main>
     </div>
   );

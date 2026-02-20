@@ -2,6 +2,14 @@
 
 import { useState } from "react";
 
+function StepNumber({ n }: { n: number }) {
+  return (
+    <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#6c5ce7]/20 text-[#6c5ce7] text-xs font-bold shrink-0">
+      {n}
+    </span>
+  );
+}
+
 export default function McpConfigTab({ userId }: { userId: string }) {
   const [copied, setCopied] = useState(false);
 
@@ -43,24 +51,37 @@ export default function McpConfigTab({ userId }: { userId: string }) {
 
       <div className="bg-[#1a1a2e] rounded-xl p-6 border border-gray-800 space-y-4">
         <h3 className="text-white font-medium">Setup Instructions</h3>
-        <ol className="list-decimal list-inside space-y-2 text-sm text-gray-300">
-          <li>
-            Copy the JSON config below
-          </li>
-          <li>
-            Create or edit <code className="text-[#6c5ce7] bg-[#6c5ce7]/10 px-1.5 py-0.5 rounded">.mcp.json</code> in
-            your project root (or <code className="text-[#6c5ce7] bg-[#6c5ce7]/10 px-1.5 py-0.5 rounded">~/.claude.json</code> for global)
-          </li>
-          <li>
-            Replace <code className="text-[#6c5ce7] bg-[#6c5ce7]/10 px-1.5 py-0.5 rounded">/ABSOLUTE/PATH/TO/</code> with
-            the actual path to your rag-mcp-server
-          </li>
-          <li>
-            Fill in your <code className="text-[#6c5ce7] bg-[#6c5ce7]/10 px-1.5 py-0.5 rounded">SUPABASE_SERVICE_KEY</code> and{" "}
-            <code className="text-[#6c5ce7] bg-[#6c5ce7]/10 px-1.5 py-0.5 rounded">VOYAGE_API_KEY</code>
-          </li>
-          <li>Restart Claude Code — the RAG tools will appear automatically</li>
-        </ol>
+        <div className="space-y-3 text-sm text-gray-300">
+          <div className="flex items-start gap-3">
+            <StepNumber n={1} />
+            <span>Copy the JSON config below</span>
+          </div>
+          <div className="flex items-start gap-3">
+            <StepNumber n={2} />
+            <span>
+              Create or edit <code className="text-[#6c5ce7] bg-[#6c5ce7]/10 px-1.5 py-0.5 rounded">.mcp.json</code> in
+              your project root (or <code className="text-[#6c5ce7] bg-[#6c5ce7]/10 px-1.5 py-0.5 rounded">~/.claude.json</code> for global)
+            </span>
+          </div>
+          <div className="flex items-start gap-3">
+            <StepNumber n={3} />
+            <span>
+              Replace <code className="text-[#6c5ce7] bg-[#6c5ce7]/10 px-1.5 py-0.5 rounded">/ABSOLUTE/PATH/TO/</code> with
+              the actual path to your rag-mcp-server
+            </span>
+          </div>
+          <div className="flex items-start gap-3">
+            <StepNumber n={4} />
+            <span>
+              Fill in your <code className="text-[#6c5ce7] bg-[#6c5ce7]/10 px-1.5 py-0.5 rounded">SUPABASE_SERVICE_KEY</code> and{" "}
+              <code className="text-[#6c5ce7] bg-[#6c5ce7]/10 px-1.5 py-0.5 rounded">VOYAGE_API_KEY</code>
+            </span>
+          </div>
+          <div className="flex items-start gap-3">
+            <StepNumber n={5} />
+            <span>Restart Claude Code — the RAG tools will appear automatically</span>
+          </div>
+        </div>
       </div>
 
       <div className="bg-[#1a1a2e] rounded-xl p-6 border border-gray-800">

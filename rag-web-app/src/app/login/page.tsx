@@ -45,17 +45,21 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0a0a1a] px-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white">
+      <div className="w-full max-w-md animate-fade-in">
+        {/* Logo with glow */}
+        <div className="text-center mb-8 relative">
+          <div className="absolute inset-0 flex items-center justify-center -top-4">
+            <div className="w-32 h-32 bg-[#6c5ce7]/15 rounded-full blur-3xl animate-pulse-glow" />
+          </div>
+          <h1 className="text-4xl font-bold text-white relative">
             RAG <span className="text-[#6c5ce7]">Vault</span>
           </h1>
-          <p className="text-gray-400 mt-2">
+          <p className="text-gray-400 mt-2 relative">
             Your personal knowledge base with semantic search
           </p>
         </div>
 
-        <div className="bg-[#1a1a2e] rounded-xl p-8 shadow-2xl border border-gray-800">
+        <div className="bg-[#1a1a2e] rounded-xl p-8 shadow-2xl border border-gray-800 animate-slide-up">
           <h2 className="text-xl font-semibold text-white mb-6">
             {isSignUp ? "Create account" : "Sign in"}
           </h2>
@@ -89,13 +93,13 @@ export default function LoginPage() {
             </div>
 
             {error && (
-              <div className="text-red-400 text-sm bg-red-400/10 p-3 rounded-lg">
+              <div className="text-red-400 text-sm bg-red-400/10 p-3 rounded-lg animate-fade-in">
                 {error}
               </div>
             )}
 
             {message && (
-              <div className="text-green-400 text-sm bg-green-400/10 p-3 rounded-lg">
+              <div className="text-green-400 text-sm bg-green-400/10 p-3 rounded-lg animate-fade-in">
                 {message}
               </div>
             )}
@@ -103,8 +107,9 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2.5 bg-[#6c5ce7] hover:bg-[#5a4bd6] text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-2.5 bg-[#6c5ce7] hover:bg-[#5a4bd6] text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
+              {loading && <span className="spinner spinner-sm" />}
               {loading
                 ? "Loading..."
                 : isSignUp

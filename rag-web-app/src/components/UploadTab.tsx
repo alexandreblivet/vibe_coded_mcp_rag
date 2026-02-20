@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 
 export default function UploadTab({ accessToken }: { accessToken: string }) {
   const [filename, setFilename] = useState("");
@@ -10,12 +10,10 @@ export default function UploadTab({ accessToken }: { accessToken: string }) {
     success: boolean;
     message: string;
   } | null>(null);
+  const [dragging, setDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  function loadFile(file: File) {
     setFilename(file.name);
     const reader = new FileReader();
     reader.onload = (event) => {
@@ -23,6 +21,28 @@ export default function UploadTab({ accessToken }: { accessToken: string }) {
     };
     reader.readAsText(file);
   }
+
+  function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (file) loadFile(file);
+  }
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setDragging(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setDragging(false);
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setDragging(false);
+    const file = e.dataTransfer.files[0];
+    if (file) loadFile(file);
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -70,29 +90,40 @@ export default function UploadTab({ accessToken }: { accessToken: string }) {
         </p>
       </div>
 
-      <div className="bg-[#1a1a2e] rounded-xl p-6 border border-gray-800">
-        <label className="block mb-4">
-          <span className="text-sm text-gray-400">
-            Choose file (.txt, .md)
-          </span>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".txt,.md,.text,.markdown"
-            onChange={handleFileSelect}
-            className="mt-2 block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-[#6c5ce7] file:text-white hover:file:bg-[#5a4bd6] file:cursor-pointer"
-          />
-        </label>
+      {/* Drag-and-drop zone */}
+      <div
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        onClick={() => fileInputRef.current?.click()}
+        className={`bg-[#1a1a2e] rounded-xl p-8 border-2 border-dashed cursor-pointer transition-all duration-200 text-center ${
+          dragging
+            ? "border-[#6c5ce7] bg-[#6c5ce7]/10 scale-[1.01]"
+            : "border-gray-700 hover:border-gray-500"
+        }`}
+      >
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".txt,.md,.text,.markdown"
+          onChange={handleFileSelect}
+          className="hidden"
+        />
+        <div className="text-3xl mb-2">{dragging ? "\u2B07" : "\u{1F4C4}"}</div>
+        <p className="text-sm text-gray-300">
+          {dragging ? "Drop file here" : "Drop a file here, or click to browse"}
+        </p>
+        <p className="text-xs text-gray-500 mt-1">.txt, .md files supported</p>
+      </div>
 
-        <div className="relative mb-1">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-700" />
-          </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-[#1a1a2e] text-gray-500">
-              or paste text
-            </span>
-          </div>
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-gray-700" />
+        </div>
+        <div className="relative flex justify-center text-sm">
+          <span className="px-2 bg-[#0a0a1a] text-gray-500">
+            or paste text
+          </span>
         </div>
       </div>
 
@@ -129,15 +160,16 @@ export default function UploadTab({ accessToken }: { accessToken: string }) {
         <button
           type="submit"
           disabled={loading || !filename.trim() || !content.trim()}
-          className="px-6 py-2.5 bg-[#6c5ce7] hover:bg-[#5a4bd6] text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-6 py-2.5 bg-[#6c5ce7] hover:bg-[#5a4bd6] text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
         >
+          {loading && <span className="spinner spinner-sm" />}
           {loading ? "Ingesting..." : "Ingest Document"}
         </button>
       </form>
 
       {result && (
         <div
-          className={`p-4 rounded-lg text-sm ${
+          className={`p-4 rounded-lg text-sm animate-slide-up ${
             result.success
               ? "bg-green-400/10 text-green-400 border border-green-400/20"
               : "bg-red-400/10 text-red-400 border border-red-400/20"
